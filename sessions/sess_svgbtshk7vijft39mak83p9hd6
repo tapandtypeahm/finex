@@ -1,0 +1,1 @@
+adminSession|a:7:{s:10:"admin_name";s:4:"jeet";s:8:"admin_id";s:2:"12";s:12:"admin_rights";a:3:{i:0;s:1:"1";i:1;s:1:"7";i:2;s:3:"199";}s:13:"report_rights";a:1:{i:0;s:3:"199";}s:15:"admin_logged_in";b:1;s:10:"reset_date";s:10:"2013-10-11";s:5:"oc_id";s:1:"3";}ack|a:2:{s:3:"msg";s:25:"Loan updated Successfuly!";s:4:"type";i:0;}

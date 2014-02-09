@@ -1,0 +1,27 @@
+/* CSS Document */
+.interest_certificate_container{
+	padding-top:275px;
+	font-size:24px;
+	line-height:50px;
+	}
+.special_text{
+	font-size:26px;
+	font-weight:bold;
+	}	
+.lee{
+	padding-top:0px;
+	width:85%;
+	text-align:right;
+	}	
+.visvasu{
+	padding-top:0px;
+	width:90%;
+	text-align:right;
+	}		
+ul.overview li
+{
+	line-height:50px;
+
+	}	
+
+

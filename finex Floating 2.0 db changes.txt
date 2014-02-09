@@ -1,0 +1,198 @@
+NEW TABLES :
+fin_loan_scheme (FOR storing duration X emi for a particular IRREGULAR LOAN STRUCTURE)
+
+fin_loan_scheme_agency (FOR storing duration X emi for a particular IRREGULAR LOAN STRUCTURE Agency)
+
+OLD TABLE CHANGES :
+
+fin_loan_emi
+Add emi_amount (FLOAT) field aftes actual_emi_date field
+
+fin_loan
+Add loan_scheme (int) field after loan_type field
+
+fin_vehicle_seize
+add sold(int) default 0 field after seize_date
+
+fin_emi_payment, fin_file_closed
+
+change the size of rasid_no field to 100
+
+fin_loan
+ 
+Add agency_loan_amount(int) default 0 After loan_starting_date
+
+fin_loan_penalty
+
+add rasid_no after payment_mode default "NA"
+add Paid_by after rasid_no default "NA"
+
+add created_by
+add last_updated_by
+add date_added
+add date_modified
+
+fin_customer
+
+paid_by after customer_pincode default "NA"
+
+CSS
+
+.addEMIDurationBtn,.deleteEMIDurationBtn,.addEMIDurationBtnAgency,.deleteEMIDurationBtnAgency{
+	position:relative;
+	top:-5px;
+	margin-left:5px;
+	}
+
+#uneven_loan_table
+{
+	display:none;
+	}	
+#EMIDurationTR,#EMIDurationAgencyTR{
+	display:none;
+	}	
+##############################
+08/12/2013
+\\\\\\\\\\\\\\\\
+DB Changes
+
+#Company Settle
+
+1. fin_agency_settle (settle_id[int],settle_date[date],receipt_no[varchar-255],payment_mode[int 1 or 0],noc_received_date[date],file_id[fin_file foriegn key],date_added,date_modified,created_by,last_updated_by)
+2. fin_agency_settle_cheque (settle_cheque_id[int],bank_id,branch_id,cheque_no,cheque_date,settle_id)
+
+\\\\\\\\\\\\\\\\\\\\
+Code Changes
+
+1. agency-functions.php insert,update,delete,get settle file functions and insert update delete get settle_file_cheque	
+2. new folder settle in the admin/file
+
+ 	
+\\\\\\\\\\\\\\\\\\\\\\
+###############################	
+
+09/12/2013
+\\\\\\\\\\\\\\\\\\\\\\
+
+CODE changes
+
+1. details.php admin/customer file settlement button and file settlment details
+
+CSS changes
+
+seperated rasid.css from adminMain.css
+
+##############################
+
+19/12/2013
+\\\\\\\\\\\\\\\\\\\\\\
+
+DB changes 
+
+1. set vehicle_id in fin_vehicle_seize to take NULL values.
+
+Code Changes
+
+1. changes in vehicle-functions.php : vehicle id =0 means no vehicle so vehicle_id=null
+2. changes in backup.php table="fin_vehicle_seize"
+
+##############################
+
+25/12/2013
+\\\\\\\\\\\\\\\\\\\\\\\\
+
+DB changes
+
+New Tables 
+
+1. fin_rasid_type  : rasid_type_id (int), rasid_type_name(Varchar)
+
+OLD table changes
+
+1. fin_loan_penalty total_amount (float), rasid_type_id(foriegn int), paid(int 0=no 1=yes) after amount_per_day and file_id (int) after loan_id
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+###########################################
+
+DB changes 
+
+OLD TABLE CHAnnges
+
+fin_loan_settings delete and import it contains rasid_lock and rasid_lock time.
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+###########################################
+
+10/01/2014
+
+DB Changes
+
+add 8,Delete Remainder in fin_admin_right_table
+
+CODE CHANGES
+
+interest certificate in emi folder and added interest.css
+
+////////////////////////////////////
+################################################
+
+13/01/2014	
+
+DB CHanges 
+
+NEW TABLES
+
+fin_ac_main_settings - whether accounts is turned on or not
+fin_ac_settings - settings for each agency and our company accounts starting date and all
+
+OLD TABLES
+
+fin_customer - add opening_balance- default 0 and opening_cd default 0 after file_id.
+fin_ac_ledgers - current_balance, current_balance_cd, ledger_lock and legder_lock_time after opening_date.
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#################################################
+
+18/01/2014
+
+DB CHANGES
+
+OLD TABLE CHANGES
+
+fin_loan_emi_payment  include_accounts at the end of table default 1.
+fin_loan_penalty  include_accounts at the end of table default 0.
+fin_file_closed  include_accounts at the end of table default 1.
+fin_loan_cheque cash_amount after loan_cheque_amount
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+##################################################
+
+20/01/2014
+
+DB CHANGES
+
+OLD TABLE CHANGES
+
+fin_loan_cheque - add ledger_id default 0 at the end 
+fin_loan_penalty_cheque - add ledger_id default 0 at the end 
+fin_loan_emi_payment_cheque - add ledger_id default 0 at the end 
+fin_file_closed_cheque - add ledger_id default 0 at the end 
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+22/01/2014
+
+DB CHANGES
+
+OLD TABLE CHANGES
+
+fin_customer current_balance default 0, current_balance_cd default 0 after opening_cd
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+09/02/2014
+
+old table changes 
+
+fin_loan add duration_unit default 1 after loan_duration

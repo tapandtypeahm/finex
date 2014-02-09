@@ -1,0 +1,327 @@
+/* CSS Document */
+@media print
+  {
+	  .reportFiltersTable
+	{
+	display:block;	
+	}
+	  #content{
+		  position:relative;
+		  float:none;
+		  margin:0;
+		  padding:0;
+		  width:95%;
+		  }
+ 	.no_print{display:none;}
+	.coreContent{
+	
+		position:relative;
+		float:none;
+	width:100%;
+	border:none;
+	padding:0px;
+	margin:0px;
+		
+	
+	}
+	.headingAlignment
+	{
+		text-align:center;
+		font-size:24px;
+		}
+	body{
+		width:100%;
+		padding-top:0px;
+		padding-bottom:0px;
+		margin:0px;
+		padding:0px;
+	
+		}	
+	
+	#to_print{
+		
+	position:relative;
+	top:0px;
+	display:table;
+	overflow-x:hidden;
+	width:100%;
+	
+		}
+	#to_print tbody{
+		
+	border-left:1px solid #eee;
+	font-size:18px;
+	
+		}	
+	#companyTitle,.jvp{
+		display:block;
+		}
+	.rasidCover
+	{
+		display:block;
+		position:relative;
+		width:99.5%;
+		left:0%;
+		border:1px solid #000;
+		font-size:22px;
+		min-height:720px;
+		padding-bottom:40px;
+		overflow:hidden;
+		}
+	.borderBottom
+	{
+		display:block;}
+		
+	.Column
+	{
+		border:none;
+		}
+		
+/* rasid css */
+
+.leftDiv
+{
+	position:relative;
+	float:left;
+	width:100%;
+	height:40px;
+	
+}
+
+
+
+.fonClass
+{
+	width:25px;
+	height:25px;
+	position:relative;
+	top:-2px;
+	
+}
+.container{
+	position:relative;
+	width:98%;
+	padding:2%;
+	}
+
+.ganesh
+{
+	position:relative;
+	width:100%;
+	height:14px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:11px;
+	margin-bottom:5px;
+	text-align:center;
+	
+}
+
+.realisation
+{
+	position:relative;
+	width:100%;
+	height:15px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:13px;
+	text-decoration:underline;
+	text-align:center;
+}
+
+.headingInRed
+{
+	position:relative;
+	width:100%;
+	height:40px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:40px;
+	text-align:center;
+	font-weight:700;
+}
+
+.subHeading
+{
+	position:relative;
+	width:100%;
+	margin-top:10px;
+	height:20px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:20px;
+	text-align:center;
+}
+
+.address
+{
+	position:relative;
+	width:100%;
+	margin-top:10px;
+	height:12px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:12px;
+	text-align:center;
+	
+}
+
+.dateDiv
+{
+	position:relative;
+	width:15%;
+	float:right;
+	margin-top:0px;
+	margin-bottom:0px;
+	height:18px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:18px;
+	
+}
+
+.rasid
+{
+	position:relative;
+	width:100%;
+	margin-top:15px;
+	height:auto;
+	font-family:"MS Serif", "New York", serif;
+	font-size:24px;
+	
+}
+
+.signature
+{
+	position:relative;
+	width:22%;
+	float:right;
+	margin-top:25px;
+	height:20px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:20px;
+}
+
+.borderBottom
+{
+	border-bottom:1px solid #000;
+	margin-top:15px;
+	margin-bottom:0px;
+}
+
+.lowerLeftDiv
+{
+	position:relative;
+	float:left;
+	width:60%;
+	height:155px;
+}
+
+.rectangle
+{
+	position:relative;
+	height:60px;
+	width:300px;
+	margin-top:15px;
+	border: 2px solid #000;
+}
+
+.Rs
+{
+	position:relative;
+	float:left;
+	width:17%;
+	height:36px;
+
+	font-family:"MS Serif", "New York", serif;
+	font-size:32px;
+	font-weight:700;
+	margin-top:7px;
+	margin-left:10px;
+}
+
+.amount
+{
+	position:relative;
+	float:right;
+	height:36px;
+	width:75%;
+	font-family:"MS Serif", "New York", serif;
+	font-size:32px;
+	font-weight:700;
+	margin-top:7px;
+	margin-left:10px;
+
+}
+
+.juridiction
+{
+	position:relative;
+	height:12px;
+	width:300px;
+	margin-top:10px;
+	font-family:"MS Serif", "New York", serif;
+	font-size:12px;
+	
+	
+}
+
+.aboveSign, .belowSign
+{
+	position:relative;
+	height:20px;
+	width:100%;
+	font-family:"MS Serif", "New York", serif;
+	font-size:16px;
+	margin:auto;
+	margin-left:80px;
+	text-align:center;
+}
+
+
+.square
+{
+	position:relative;
+	height:80px;
+	width:80px;
+	margin-top:10px;
+	margin-bottom:10px;
+	left:185px;
+	border: 2px solid #000;
+}
+
+
+.lowerRightdiv
+{
+	position:relative;
+	float:right;
+	padding-right:50px;
+	top:70px;
+}
+
+.partySign
+{
+	float:left;
+	position:relative;
+	margin-top:25px;
+	
+}
+
+.signSpace
+{
+	float:right;
+	position:relative;
+	width:150px;
+	height:18px;
+	border-bottom:1px solid #000;
+	margin-left:10px;
+}
+
+
+
+.smallerfont
+{
+	font-size:12px;
+	
+}
+.contactNos{
+	position:absolute;
+	right:10px;
+	top:10xp;
+	}
+	
+}
