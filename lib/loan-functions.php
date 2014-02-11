@@ -3018,6 +3018,7 @@ function insertPayment($id,$amount,$payment_mode,$payment_date,$rasid_no,$remark
 					$account_settings=getAccountsSettingsForOC($agency_company_type_id);
 					$cash_ledger_id=getCashLedgerIdForOC($agency_company_type_id);
 					$books_starting_date=getBooksStartingDateForOC($agency_company_type_id);
+					$auto_interest_ledger=getAdvanceInterestLedgerIdForOC($agency_company_type_id);
 					$income_ledger=getIncomeLedgerIdForOC($agency_company_type_id);
 				}
 			}
@@ -3921,6 +3922,7 @@ function deletePayment($id)
 					$account_settings=getAccountsSettingsForOC($agency_company_type_id);
 					$cash_ledger_id=getCashLedgerIdForOC($agency_company_type_id);
 					$books_starting_date=getBooksStartingDateForOC($agency_company_type_id);
+					$auto_interest_ledger=getAdvanceInterestLedgerIdForOC($agency_company_type_id);
 					$income_ledger=getIncomeLedgerIdForOC($agency_company_type_id);
 				}
 			}
@@ -3949,7 +3951,6 @@ function deletePayment($id)
 								{
 									$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
 									$interest_amount=$amount-$principal_amount;
-									
 									creditAccountingLedger($ledger_id,$amount); // debit bank account
 								    debitAccountingCustomer($customer_id,$principal_amount); // credit customer
 									debitAccountingLedger($income_ledger,$interest_amount);
@@ -4051,7 +4052,15 @@ function editPayment($id,$emi_id,$amount,$payment_mode,$payment_date,$rasid_no,$
 		$payment_date = str_replace('/', '-', $payment_date);
 		$payment_date=date('Y-m-d',strtotime($payment_date));	
 		$balance=getBalanceForEmi($emi_id);
+		$old_payment_details=getPaymentDetailsForEmiPaymentId($id);
+		$old_payment_mode=$old_payment_details['payment_mode'];
+		if($old_payment_mode==2)
+		{
+			$old_cheque_details=getChequeDetailsFromEmiPaymentId($id);
+			$old_ledger_id=$old_cheque_details['ledger_id'];
+			}
 		$loan_id=getLoanIdFromEmiId($emi_id);
+		$file_id=getFileIdFromLoanId($loan_id);
 		$old_rasid_no=getRasidNoForPayment($id);
 		$balance=$balance-getAmountForPaymentId($id);
 		$ag_id_array=getAgnecyIdFromEmiId($emi_id);
@@ -4078,30 +4087,116 @@ function editPayment($id,$emi_id,$amount,$payment_mode,$payment_date,$rasid_no,$
 		{
 			$rasid_no=-1;
 		}
+		
+		$agency_company_type_array=getAgencyOrCompanyIdFromFileId($file_id);
+		$agency_company_type=$agency_company_type_array[0];
+		$agency_company_type_id=$agency_company_type_array[1];
+		/* Accounts Start */
+		if(getAccountsStatus())
+			{
+				if($agency_company_type=="agency")
+				{
+					
+					$account_settings=getAccountsSettingsForAgency($agency_company_type_id);
+					$cash_ledger_id=getCashLedgerIdForAgency($agency_company_type_id);
+					$books_starting_date=getBooksStartingDateForAgency($agency_company_type_id);
+					$auto_interest_ledger=getAdvanceInterestLedgerIdForAgency($agency_company_type_id);
+					$income_ledger=getIncomeLedgerIdForAgency($agency_company_type_id);
+				}
+				else
+				{
+					$account_settings=getAccountsSettingsForOC($agency_company_type_id);
+					$cash_ledger_id=getCashLedgerIdForOC($agency_company_type_id);
+					$books_starting_date=getBooksStartingDateForOC($agency_company_type_id);
+					$auto_interest_ledger=getAdvanceInterestLedgerIdForOC($agency_company_type_id);
+					$income_ledger=getIncomeLedgerIdForOC($agency_company_type_id);
+				}
+			}
+		/* Accounts Stop */
+		
+		
 		if(checkForNumeric($id,$amount) && $payment_date!=null && $payment_date!="")
 		{
 			
 			$totalPayment=getTotalAmountForRasidNo($old_rasid_no,$loan_id,$id);
-			
 			$totalBalance=getBalanceForLoan(getLoanIdFromEmiPaymentId($id));
 			$newBalance=$totalBalance-$totalPayment;
 			$difference=$amount+$newBalance;
 			
+			$old_principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+			$old_interest_amount=$totalPayment-$old_principal_amount;
+			
 			if($difference<=0)
 			{
 				
-				if($amount!=$totalPayment)
+				if($amount!=$totalPayment) // if amount of rasid is changed
 				{
 					
 					$loan_emi_id=getFirstLoanEmiIdFromRasidNo($old_rasid_no,$loan_id,$id);
 					deletePayment($id);
 					insertMultiplePayment($loan_emi_id,$amount,$payment_mode,$payment_date,$or_rasid_no,$remarks,$remainder_date,$bank_name,$branch,$cheque_no,$cheque_date,$cheque_return,$ledger_id);
+					
+						/* accounts start */
+						if(getAccountsStatus())
+						{
+							$customer_id=getCustomerIdFromLoanId($loan_id);
+							if(strtotime($payment_date)>=strtotime($books_starting_date))
+							{
+								 if($payment_mode==1)
+								{
+									
+									if($account_settings['mercantile']==2)
+									{
+										//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+										//$interest_amount=$amount-$principal_amount;
+										
+										debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+										creditAccountingCustomer($customer_id,$amount); // credit customer
+										
+									}
+									else if($account_settings['mercantile']==0)
+									{
+										$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+										$interest_amount=$amount-$principal_amount;
+										
+										debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+										creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+										creditAccountingLedger($income_ledger,$interest_amount);
+									}
+									
+									
+								}
+								else if($payment_mode==2)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$amount); // credit customer
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+													creditAccountingLedger($income_ledger,$interest_amount);
+													}
+											}
+							}
+						}
+						/* accounts stop */
+					
 					return "success";
 					
 				}
 			}
 			$rasidIdentifier=getRasidIdentifierForPaymentId($id);		
-			if($payment_mode==2)
+			if($payment_mode==2) // amount is static
 			{
 					
 			$sql="UPDATE 
@@ -4122,6 +4217,106 @@ function editPayment($id,$emi_id,$amount,$payment_mode,$payment_date,$rasid_no,$
 					$bank_id=$bank_array[0];
 					$branch_id=$bank_array[1];
 					checkChequePayment($bank_id,$branch_id,$cheque_no,$cheque_date,$emi_payment_id,$cheque_return,$ledger_id);
+						/* accounts start */
+						if(getAccountsStatus())
+						{
+							$customer_id=getCustomerIdFromLoanId($loan_id);
+							
+							if(strtotime($old_payment_details['payment_date'])>=strtotime($books_starting_date))
+							{
+								if($old_payment_mode==1 && $payment_mode==2)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$totalPayment); // debit customer for the old amount
+													creditAccountingLedger($cash_ledger_id,$totalPayment); // credit cash the old amount 
+													
+												
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$old_principal_amount); // debit customer for the old amount
+													creditAccountingLedger($cash_ledger_id,$totalPayment); // credit cash the old amount 
+													debitAccountingLedger($income_ledger,$old_interest_amount);
+													}
+											}
+											else if($old_payment_mode==2 && $payment_mode==2)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$totalPayment); // debit customer for the old amount
+													creditAccountingLedger($old_ledger_id,$totalPayment); // credit cash the old amount 
+													
+												
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$old_principal_amount); // debit customer for the old amount
+													creditAccountingLedger($old_ledger_id,$totalPayment); // credit cash the old amount 
+													debitAccountingLedger($income_ledger,$old_interest_amount);
+													}
+											}
+							}
+							
+							if(strtotime($payment_date)>=strtotime($books_starting_date))
+							{
+								if($old_payment_mode==1 && $payment_mode==2)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$amount); // credit customer
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+												
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+													creditAccountingLedger($income_ledger,$interest_amount);
+													}
+											}
+											else if($old_payment_mode==2 && $payment_mode==2)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$amount); // credit customer
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+												
+													debitAccountingLedger($ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+													creditAccountingLedger($income_ledger,$interest_amount);
+													}
+											}
+							}
+						}
+						/* accounts stop */		
 					
 				}
 			}
@@ -4137,6 +4332,104 @@ function editPayment($id,$emi_id,$amount,$payment_mode,$payment_date,$rasid_no,$
 				  else if($rasidIdentifier!=0)
 				  $sql=$sql."emi_payment_id=$rasidIdentifier OR rasid_identifier=$rasidIdentifier";
 				  dbQuery($sql);
+				  
+				  
+				  
+				  /* accounts start */
+						if(getAccountsStatus())
+						{
+							$customer_id=getCustomerIdFromLoanId($loan_id);
+							
+							if(strtotime($old_payment_details['payment_date'])>=strtotime($books_starting_date))
+							{
+								 if($old_payment_mode==1 && $payment_mode==1)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$totalPayment); // debit customer for the old amount
+													creditAccountingLedger($cash_ledger_id,$totalPayment); // credit cash the old amount 
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													
+													debitAccountingCustomer($customer_id,$old_principal_amount); // debit customer for the old amount
+													creditAccountingLedger($cash_ledger_id,$totalPayment); // credit cash the old amount 
+													debitAccountingLedger($income_ledger,$old_interest_amount);
+													
+													}
+											}
+											else if($old_payment_mode==2 && $payment_mode==1)
+											{
+												if($account_settings['mercantile']==2)
+												{
+													//$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($emi_payment_id);
+													//$interest_amount=$amount-$principal_amount;
+													
+													debitAccountingCustomer($customer_id,$totalPayment); // debit customer for the old amount
+													creditAccountingLedger($old_ledger_id,$totalPayment); // credit cash the old amount 
+													
+												
+												}
+												else if($account_settings['mercantile']==0)
+												{
+												
+													debitAccountingCustomer($customer_id,$old_principal_amount); // debit customer for the old amount
+													creditAccountingLedger($old_ledger_id,$totalPayment); // credit cash the old amount 
+													debitAccountingLedger($income_ledger,$old_interest_amount);
+													
+												}
+											}
+											
+							}
+							
+							if(strtotime($payment_date)>=strtotime($books_starting_date))
+							{
+								 if($old_payment_mode==1 && $payment_mode==1)
+											{
+												if($account_settings['mercantile']==2)
+												{
+												
+													debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$amount); // credit customer
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;
+												
+													debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+													creditAccountingLedger($income_ledger,$interest_amount);
+													}
+											}
+											else if($old_payment_mode==2 && $payment_mode==1)
+											{
+												if($account_settings['mercantile']==2)
+												{
+												
+													debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$amount); // credit customer
+													
+												}
+												else if($account_settings['mercantile']==0)
+												{
+													$principal_amount=getPrincipalAmountToBeCreditedForEMIPaymentId($id);
+													$interest_amount=$amount-$principal_amount;	
+													debitAccountingLedger($cash_ledger_id,$amount); // debit bank account
+													creditAccountingCustomer($customer_id,$principal_amount); // credit customer
+													creditAccountingLedger($income_ledger,$interest_amount);
+													}
+											}
+											
+							}
+						}
+						/* accounts stop */	
+				  
 				  deleteChequePaymentByPaymentId($id);  
 				   
 			}
@@ -4153,7 +4446,7 @@ function editPayment($id,$emi_id,$amount,$payment_mode,$payment_date,$rasid_no,$
 			}	
 	}
 	
-	}	
+}	
 
 
 function getFirstLoanEmiIdFromRasidNo($rasid_no,$loan_id,$emi_payment_id)
@@ -5249,7 +5542,7 @@ function getChequeDetailsFromEmiPaymentId($emi_payment_id)
 {
 	if(checkForNumeric($emi_payment_id))
 	{
-		$sql="SELECT payment_cheque_id,bank_id,branch_id,cheque_no,cheque_date FROM fin_loan_emi_payment_cheque
+		$sql="SELECT payment_cheque_id,bank_id,branch_id,cheque_no,cheque_date,ledger_id,cheque_return FROM fin_loan_emi_payment_cheque
 		WHERE emi_payment_id=$emi_payment_id";
 		$result=dbQuery($sql);
 		$resultArray=dbResultToArray($result);
